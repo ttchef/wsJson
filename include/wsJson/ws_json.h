@@ -64,6 +64,7 @@ char* wsJsonGetString(wsJson* obj, const char* key);
 double* wsJsonGetNumber(wsJson* obj, const char* key);
 bool* wsJsonGetBool(wsJson* obj, const char* key);
 
+// Null conversions
 int32_t wsJsonNullToChild(wsJson* obj, const char* key, wsJson* fields);
 int32_t wsJsonNullToString(wsJson* obj, const char* key, const char* val);
 int32_t wsJsonNullToNumber(wsJson* obj, const char* key, double val);
@@ -77,6 +78,8 @@ void wsJsonFree(wsJson* obj);
     #define wsJsonAddString(parent, key, val) (wsJsonAddField(parent, wsJsonInitString(key, val)))
     #define wsJsonAddNumber(parent, key, val) (wsJsonAddField(parent, wsJsonInitNumber(key, val)))
     #define wsJsonAddBool(parent, key, val) (wsJsonAddField(parent, wsJsonInitBool(key, val)))
+    #define wsJsonAddNull(parent, key) (wsJsonAddField(parent, wsJsonInitNull(key)))
 #endif // WSJSON_MACROS
 
 #endif
+
