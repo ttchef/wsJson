@@ -42,3 +42,11 @@ int main() {
     return 0;
 }
 
+/*
+Output:
+
+Lives: 100.00
+Name: Fredmaster
+{"number": 32,"name": "Fredmaster","bool": true,"player": {"lives": 100,"alive": true}}
+
+*/
