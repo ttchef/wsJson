@@ -10,7 +10,14 @@ int main() {
     wsJsonAddString(root, "name", "Fred");
     wsJsonAddBool(root, "bool", true);
 
-    wsJsonAddField(root, wsJsonInitNull("idk"));
+    wsJsonAddField(root, wsJsonInitNull("player"));
+
+    wsJson* player = wsJsonInitChild(NULL);
+    wsJsonAddNumber(player, "lives", 100);
+    wsJsonAddBool(player, "alive", true);
+
+    wsJsonNullToChild(root, "player", player);
+
 
     // Print Json
     char string[2000];

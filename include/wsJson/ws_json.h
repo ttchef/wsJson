@@ -39,6 +39,7 @@ typedef struct wsJson {
     };
 } wsJson;
 
+
 // Create functions
 wsJson* wsJsonInitChild(const char* key);
 wsJson* wsJsonInitString(const char* key, const char* val);
@@ -52,11 +53,22 @@ void wsJsonAddField(wsJson* parent, wsJson* child);
 
 // Adds an element to a json array
 void wsJsonAddElement(wsJson* array, wsJson* element);
+
+// String conversions
 int32_t wsJsonToString(wsJson* obj, char* out, size_t size);
 wsJson* wsStringToJson(const char** string);
+
+// Get Values as Pointers so you can modify them
 wsJson* wsJsonGet(wsJson* obj, const char* key);
-const char* wsJsonGetString(wsJson* obj, const char* key);
-double wsJsonGetNumber(wsJson* obj, const char* key);
+char* wsJsonGetString(wsJson* obj, const char* key);
+double* wsJsonGetNumber(wsJson* obj, const char* key);
+bool* wsJsonGetBool(wsJson* obj, const char* key);
+
+int32_t wsJsonNullToChild(wsJson* obj, const char* key, wsJson* fields);
+int32_t wsJsonNullToString(wsJson* obj, const char* key, const char* val);
+int32_t wsJsonNullToNumber(wsJson* obj, const char* key, double val);
+int32_t wsJsonNullToBool(wsJson* obj, const char* key, bool val);
+int32_t wsJsonNullToArray(wsJson* obj, const char* key, wsJson* array);
 
 // Goes recursive trough the json tree and frees everything
 void wsJsonFree(wsJson* obj);
