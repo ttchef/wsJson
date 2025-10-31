@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <string.h>
 
-wsJson* wsJsonInitChild(const char* key) {
+wsJson* wsJsonInitObject(const char* key) {
     wsJson* obj = malloc(sizeof(wsJson));
     if (!obj) {
         WS_LOG_ERROR("Failed to allocate memory for json object: %s\n", key);
@@ -318,7 +318,7 @@ wsJson* wsStringToJson(const char** string) {
         return NULL;
     }
 
-    wsJson* root = wsJsonInitChild(NULL);
+    wsJson* root = wsJsonInitObject(NULL);
     if (!root) {
         WS_LOG_ERROR("Failed to allocate json object\n");
         return NULL;
@@ -429,7 +429,7 @@ bool* wsJsonGetBool(wsJson* obj, const char* key) {
     return NULL;
 }
 
-int32_t wsJsonNullToChild(wsJson* obj, const char *key, wsJson *fields) {
+int32_t wsJsonNullToObject(wsJson* obj, const char *key, wsJson *fields) {
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_NULL) {
         child->type = WS_JSON_OBJECT;

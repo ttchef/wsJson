@@ -41,7 +41,7 @@ typedef struct wsJson {
 
 
 // Create functions
-wsJson* wsJsonInitChild(const char* key);
+wsJson* wsJsonInitObject(const char* key);
 wsJson* wsJsonInitString(const char* key, const char* val);
 wsJson* wsJsonInitNumber(const char* key, double val);
 wsJson* wsJsonInitBool(const char* key, bool val);
@@ -65,7 +65,7 @@ double* wsJsonGetNumber(wsJson* obj, const char* key);
 bool* wsJsonGetBool(wsJson* obj, const char* key);
 
 // Null conversions
-int32_t wsJsonNullToChild(wsJson* obj, const char* key, wsJson* fields);
+int32_t wsJsonNullToObject(wsJson* obj, const char* key, wsJson* objects);
 int32_t wsJsonNullToString(wsJson* obj, const char* key, const char* val);
 int32_t wsJsonNullToNumber(wsJson* obj, const char* key, double val);
 int32_t wsJsonNullToBool(wsJson* obj, const char* key, bool val);

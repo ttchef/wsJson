@@ -4,7 +4,7 @@
 int main() {
 
     // Init a new Json object
-    wsJson* root = wsJsonInitChild(NULL);
+    wsJson* root = wsJsonInitObject(NULL);
 
     wsJsonAddNumber(root, "number", 32);
     wsJsonAddString(root, "name", "Fred");
@@ -12,10 +12,10 @@ int main() {
 
     // Null Field with conversion
     wsJsonAddNull(root, "player");
-    wsJson* player = wsJsonInitChild(NULL);
+    wsJson* player = wsJsonInitObject(NULL);
     wsJsonAddNumber(player, "lives", 100);
     wsJsonAddBool(player, "alive", true);
-    wsJsonNullToChild(root, "player", player);
+    wsJsonNullToObject(root, "player", player);
 
     // Get Value
     wsJson* playerGet = wsJsonGet(root, "player");
