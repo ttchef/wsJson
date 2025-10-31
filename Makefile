@@ -1,31 +1,43 @@
 
 CC = gcc
-CFLAGS = -o2
+CFLAGS = -o2 -Iinclude/wsJson
 
 BUILD ?= static
 
 LIBNAME = wsJson
 
+SRC_FILES = $(wildcard src/*.c)
+OBJ_FILES = $(SRC_FILES:.c=.o)
+
 all: $(BUILD)
 
-shared: 
-	$(CC) $(CFLAGS) -shared -fPIC ws_json.c -o lib$(LIBNAME).so
+shared: $(OBJ_FILES)
+	mkdir -p lib
+	$(CC) $(CFLAGS) -shared -fPIC $(OBJ_FILES) -o lib/lib$(LIBNAME).so
 
-static: 
-	ar cr lib$(LIBNAME).a ws_json.c
+static: $(OBJ_FILES)
+	mkdir -p lib
+	ar cr lib/lib$(LIBNAME).a $(OBJ_FILES)
 
 install: $(BUILD)
 ifeq ($(BUILD),static)
-		cp lib$(LIBNAME).a /usr/local/lib/
+		cp lib/lib$(LIBNAME).a /usr/local/lib/
 else 
-		cp lib$(LIBNAME).so /usr/local/lib/
+		cp lib/lib$(LIBNAME).so /usr/local/lib/
 endif
-		cp ws_json.h /usr/local/include/
+		cp -r include/$(LIBNAME) /usr/local/include/
 
 uninstall:
 	rm -f /usr/local/lib/lib$(LIBNAME).a
 	rm -f /usr/local/lib/lib$(LIBNAME).so
-	rm -f /usr/local/include/ws_json.h
+	rm -f /usr/local/include/
+
+example: $(BUILD)
+	$(CC) example.c -o example -lwsJson
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm lib$(LIBNAME).a lib$(LIBNAME).so
+	rm -rf lib$(LIBNAME).a lib$(LIBNAME).so lib
+
