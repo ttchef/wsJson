@@ -23,10 +23,8 @@ int main() {
     printf("Lives: %.2lf\n", *lives);
 
     // Set Value
-    const char* newName = "Fredmaster";
-    char* dest = wsJsonGetString(root, "name");
-    memset(dest, 0, WS_JSON_MAX_VALUE_SIZE);
-    memcpy(dest, newName, strlen(newName));
+    wsJsonSetString(root, "name", "Fredmaster");
+
     // Get new value
     char name[WS_JSON_MAX_VALUE_SIZE];
     memcpy(name, wsJsonGetString(root, "name"), WS_JSON_MAX_VALUE_SIZE);

@@ -64,6 +64,11 @@ char* wsJsonGetString(wsJson* obj, const char* key);
 double* wsJsonGetNumber(wsJson* obj, const char* key);
 bool* wsJsonGetBool(wsJson* obj, const char* key);
 
+// Setter functions
+int32_t wsJsonSetString(wsJson* obj, const char* key, const char* val);
+int32_t wsJsonSetNumber(wsJson* obj, const char* key, double val);
+int32_t wsJsonSetBool(wsJson* obj, const char* key, bool val);
+
 // Null conversions
 int32_t wsJsonNullToObject(wsJson* obj, const char* key, wsJson* objects);
 int32_t wsJsonNullToString(wsJson* obj, const char* key, const char* val);
