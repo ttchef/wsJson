@@ -49,6 +49,7 @@ wsJson* wsJsonInitNull(const char* key);
 
 // Adds a new child to the json object
 void wsJsonAddField(wsJson* parent, wsJson* child);
+
 // Adds an element to a json array
 void wsJsonAddElement(wsJson* array, wsJson* element);
 int32_t wsJsonToString(wsJson* obj, char* out, size_t size);
@@ -59,5 +60,11 @@ double wsJsonGetNumber(wsJson* obj, const char* key);
 
 // Goes recursive trough the json tree and frees everything
 void wsJsonFree(wsJson* obj);
+
+#ifndef WSJSON_NO_MACROS
+    #define wsJsonAddString(parent, key, val) (wsJsonAddField(parent, wsJsonInitString(key, val)))
+    #define wsJsonAddNumber(parent, key, val) (wsJsonAddField(parent, wsJsonInitNumber(key, val)))
+    #define wsJsonAddBool(parent, key, val) (wsJsonAddField(parent, wsJsonInitBool(key, val)))
+#endif // WSJSON_MACROS
 
 #endif

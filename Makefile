@@ -30,7 +30,7 @@ endif
 uninstall:
 	rm -f /usr/local/lib/lib$(LIBNAME).a
 	rm -f /usr/local/lib/lib$(LIBNAME).so
-	rm -f /usr/local/include/
+	rm -rf /usr/local/include/wsJson
 
 example: $(BUILD)
 	$(CC) example.c -o example -lwsJson
