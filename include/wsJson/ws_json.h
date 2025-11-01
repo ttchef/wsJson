@@ -18,7 +18,7 @@ typedef enum {
     WS_JSON_OBJECT,
     WS_JSON_BOOL,
     WS_JSON_ARRAY,
-    WS_JSON_NULL,
+    WS_JSON_NULL
 } wsJsonType;
 
 typedef struct wsJson {

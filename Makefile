@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -o2 -Iinclude/wsJson
+CFLAGS = -o2 -std=c99 -Iinclude/wsJson
 
 BUILD ?= static
 
