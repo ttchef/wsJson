@@ -405,7 +405,7 @@ wsJson* wsJsonGet(wsJson* obj, const char* key) {
     return NULL;
 }
 
-char* wsJsonGetString(wsJson* obj, const char* key) {
+const char* wsJsonGetString(wsJson* obj, const char* key) {
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_STRING) {
         return child->stringValue;
@@ -413,20 +413,20 @@ char* wsJsonGetString(wsJson* obj, const char* key) {
     return NULL;
 }
 
-double* wsJsonGetNumber(wsJson *obj, const char *key) {
+double wsJsonGetNumber(wsJson *obj, const char *key) {
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_NUMBER) {
-        return &child->numberValue;
+        return child->numberValue;
     }
-    return NULL;
+    return WS_ERROR;
 }
 
-bool* wsJsonGetBool(wsJson* obj, const char* key) {
+bool wsJsonGetBool(wsJson* obj, const char* key) {
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_BOOL) {
-        return &child->boolValue;
+        return child->boolValue;
     }
-    return NULL;
+    return WS_ERROR;
 }
 
 int32_t wsJsonSetString(wsJson *obj, const char *key, const char *val) {

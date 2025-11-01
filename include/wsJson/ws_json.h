@@ -60,9 +60,9 @@ wsJson* wsStringToJson(const char** string);
 
 // Get Values as Pointers so you can modify them
 wsJson* wsJsonGet(wsJson* obj, const char* key);
-char* wsJsonGetString(wsJson* obj, const char* key);
-double* wsJsonGetNumber(wsJson* obj, const char* key);
-bool* wsJsonGetBool(wsJson* obj, const char* key);
+const char* wsJsonGetString(wsJson* obj, const char* key);
+double wsJsonGetNumber(wsJson* obj, const char* key);
+bool wsJsonGetBool(wsJson* obj, const char* key);
 
 // Setter functions
 int32_t wsJsonSetString(wsJson* obj, const char* key, const char* val);

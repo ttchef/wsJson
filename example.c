@@ -19,8 +19,8 @@ int main() {
 
     // Get Value
     wsJson* playerGet = wsJsonGet(root, "player");
-    double* lives = wsJsonGetNumber(playerGet, "lives");
-    printf("Lives: %.2lf\n", *lives);
+    double lives = wsJsonGetNumber(playerGet, "lives");
+    printf("Lives: %.2lf\n", lives);
 
     // Set Value
     wsJsonSetString(root, "name", "Fredmaster");
@@ -48,3 +48,4 @@ Name: Fredmaster
 {"number": 32,"name": "Fredmaster","bool": true,"player": {"lives": 100,"alive": true}}
 
 */
+
