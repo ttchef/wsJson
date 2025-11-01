@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -o0 -g -Iinclude/wsJson
+CFLAGS = -o2 -Iinclude/wsJson
 
 BUILD ?= static
 
@@ -17,7 +17,7 @@ shared: $(OBJ_FILES)
 
 static: $(OBJ_FILES)
 	mkdir -p lib
-	ar rcs lib/lib$(LIBNAME).a $(OBJ_FILES)
+	ar cr lib/lib$(LIBNAME).a $(OBJ_FILES)
 
 install: $(BUILD)
 ifeq ($(BUILD),static)
