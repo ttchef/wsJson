@@ -1,6 +1,7 @@
 *.a
 *.so
 *.json
+*.o
 .cache/
 example
 lib
