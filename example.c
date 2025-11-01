@@ -1,5 +1,5 @@
 
-#include <wsJson/ws_json.h>
+#include "include/wsJson/ws_json.h"
 
 int main() {
 
@@ -18,8 +18,7 @@ int main() {
     wsJsonSetNullToObject(root, "player", player);
 
     // Get Value
-    wsJson* playerGet = wsJsonGet(root, "player");
-    double lives = wsJsonGetNumber(playerGet, "lives");
+    double lives = wsJsonGetNumber(root, "player.lives");
     printf("Lives: %.2lf\n", lives);
 
     // Set Value
@@ -27,7 +26,7 @@ int main() {
 
     // Get new value
     char name[WS_JSON_MAX_VALUE_SIZE];
-    memcpy(name, wsJsonGetString(root, "name"), WS_JSON_MAX_VALUE_SIZE);
+    wsJsonGetStringEx(root, "name", name, WS_JSON_MAX_VALUE_SIZE);
     printf("Name: %s\n", name);
 
     // Print Json

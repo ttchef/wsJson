@@ -385,7 +385,7 @@ wsJson* wsStringToJson(const char** string) {
     return root;
 }
 
-wsJson* wsJsonGet(wsJson* obj, const char* key) {
+wsJson* wsJsonGetNonPath(wsJson* obj, const char* key) {
     if (!obj || !key) {
         WS_LOG_ERROR("Invalid input is NULL\n");
         return NULL;
@@ -401,8 +401,39 @@ wsJson* wsJsonGet(wsJson* obj, const char* key) {
             return child;
         }
     }
-
     return NULL;
+}
+
+wsJson* wsJsonGet(wsJson* obj, const char* key) {
+    if (!obj || !key) {
+        WS_LOG_ERROR("Invalid input is NULL\n");
+        return NULL;
+    } 
+    if (obj->type != WS_JSON_OBJECT) {
+        WS_LOG_ERROR("Obj is not from type WS_JSON_OBJECT\n");
+        return NULL;
+    }
+
+    const char* start = key;
+    const char* dot;
+    wsJson* current = obj;
+
+    while (current && (dot = strchr(start, '.'))) {
+        size_t len = (size_t)(dot - start);
+        char path[WS_JSON_MAX_KEY_SIZE];
+        if (len >= sizeof(path)) len = sizeof(path) - 1;
+        memcpy(path, start, len);
+        path[len] = '\0';
+
+        current = wsJsonGetNonPath(current, path);
+        start = dot + 1;
+    }
+
+    if (current && *start) {
+        current = wsJsonGetNonPath(current, start);
+    }
+
+    return current;
 }
 
 const char* wsJsonGetString(wsJson* obj, const char* key) {
@@ -411,6 +442,15 @@ const char* wsJsonGetString(wsJson* obj, const char* key) {
         return child->stringValue;
     }
     return NULL;
+}
+
+int32_t wsJsonGetStringEx(wsJson *obj, const char *key, char *out, size_t size) {
+    wsJson* child = wsJsonGet(obj, key);
+    if (child && child->type == WS_JSON_STRING) {
+        memcpy(out, child->stringValue, size);
+        return WS_OK;
+    }
+    return WS_ERROR;
 }
 
 double wsJsonGetNumber(wsJson *obj, const char *key) {

@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -o2 -Iinclude/wsJson
+CFLAGS = -o0 -g -Iinclude/wsJson
 
 BUILD ?= static
 
@@ -17,7 +17,7 @@ shared: $(OBJ_FILES)
 
 static: $(OBJ_FILES)
 	mkdir -p lib
-	ar cr lib/lib$(LIBNAME).a $(OBJ_FILES)
+	ar rcs lib/lib$(LIBNAME).a $(OBJ_FILES)
 
 install: $(BUILD)
 ifeq ($(BUILD),static)
@@ -33,7 +33,7 @@ uninstall:
 	rm -rf /usr/local/include/wsJson
 
 example: $(BUILD)
-	$(CC) example.c -o example -lwsJson
+	$(CC) -g example.c src/ws_json.c -o example -Iinclude/wsJson
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
