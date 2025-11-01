@@ -15,7 +15,7 @@ int main() {
     wsJson* player = wsJsonInitObject(NULL);
     wsJsonAddNumber(player, "lives", 100);
     wsJsonAddBool(player, "alive", true);
-    wsJsonNullToObject(root, "player", player);
+    wsJsonSetNullToObject(root, "player", player);
 
     // Get Value
     wsJson* playerGet = wsJsonGet(root, "player");

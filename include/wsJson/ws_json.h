@@ -70,11 +70,11 @@ int32_t wsJsonSetNumber(wsJson* obj, const char* key, double val);
 int32_t wsJsonSetBool(wsJson* obj, const char* key, bool val);
 
 // Null conversions
-int32_t wsJsonNullToObject(wsJson* obj, const char* key, wsJson* objects);
-int32_t wsJsonNullToString(wsJson* obj, const char* key, const char* val);
-int32_t wsJsonNullToNumber(wsJson* obj, const char* key, double val);
-int32_t wsJsonNullToBool(wsJson* obj, const char* key, bool val);
-int32_t wsJsonNullToArray(wsJson* obj, const char* key, wsJson* array);
+int32_t wsJsonSetNullToObject(wsJson* obj, const char* key, wsJson* objects);
+int32_t wsJsonSetNullToString(wsJson* obj, const char* key, const char* val);
+int32_t wsJsonSetNullToNumber(wsJson* obj, const char* key, double val);
+int32_t wsJsonSetNullToBool(wsJson* obj, const char* key, bool val);
+int32_t wsJsonSetNullToArray(wsJson* obj, const char* key, wsJson* array);
 
 // Goes recursive trough the json tree and frees everything
 void wsJsonFree(wsJson* obj);
