@@ -469,7 +469,7 @@ bool wsJsonGetBool(wsJson* obj, const char* key) {
     return WS_ERROR;
 }
 
-int32_t wsJsonSetString(wsJson *obj, const char *key, const char *val) {
+int32_t wsJsonSetStringExplicit(wsJson *obj, const char *key, const char *val) {
     size_t lenght = strlen(val);
     if (lenght >= WS_JSON_MAX_VALUE_SIZE) return WS_ERROR;
 
@@ -478,22 +478,25 @@ int32_t wsJsonSetString(wsJson *obj, const char *key, const char *val) {
         char* dest = child->stringValue;
         memset(dest, 0, WS_JSON_MAX_VALUE_SIZE);
         strcpy(dest, val);
+        return WS_OK;
     }
     return WS_ERROR;
 }
 
-int32_t wsJsonSetNumber(wsJson *obj, const char *key, double val) {
+int32_t wsJsonSetNumberExplicit(wsJson *obj, const char *key, double val) {
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_NUMBER) {
         child->numberValue = val;
+        return WS_OK;
     }
     return WS_ERROR;
 }
 
-int32_t wsJsonSetBool(wsJson *obj, const char *key, bool val) {
+int32_t wsJsonSetBoolExplicit(wsJson *obj, const char *key, bool val) {
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_BOOL) {
         child->boolValue = val;
+        return WS_OK;
     }
     return WS_ERROR;
 }
@@ -503,6 +506,7 @@ int32_t wsJsonSetNullToObject(wsJson* obj, const char *key, wsJson *fields) {
     if (child && child->type == WS_JSON_NULL) {
         child->type = WS_JSON_OBJECT;
         memcpy(&child->object, &fields->object, sizeof(child->object));
+        return WS_OK;
     }
     return WS_ERROR;
 }
@@ -514,6 +518,7 @@ int32_t wsJsonSetNullToString(wsJson *obj, const char *key, const char *val) {
         if (length >= WS_JSON_MAX_VALUE_SIZE) return WS_ERROR;
         child->type = WS_JSON_STRING;
         strcpy(child->stringValue, val);
+        return WS_OK;
     }
     return WS_ERROR;
 }
@@ -523,6 +528,7 @@ int32_t wsJsonSetNullToNumber(wsJson *obj, const char *key, double val) {
     if (child && child->type == WS_JSON_NULL) {
         child->type = WS_JSON_NUMBER;
         child->numberValue = val;
+        return WS_OK;
     }
     return WS_ERROR;
 }
@@ -532,6 +538,7 @@ int32_t wsJsonSetNullToBool(wsJson *obj, const char *key, bool val) {
     if (child && child->type == WS_JSON_NULL) {
         child->type = WS_JSON_BOOL;
         child->boolValue = val;
+        return WS_OK;
     }
     return WS_ERROR;
 }
@@ -541,6 +548,37 @@ int32_t wsJsonSetNullToArray(wsJson *obj, const char *key, wsJson *array) {
     if (child && child->type == WS_JSON_NULL) {
         child->type = WS_JSON_ARRAY;
         memcpy(&child->array, &array->array, sizeof(child->array));
+        return WS_OK;
+    }
+    return WS_ERROR;
+}
+
+int32_t wsJsonSetString(wsJson *obj, const char *key, const char *val) {
+    wsJson* child = wsJsonGet(obj, key);
+    if (child) {
+        if (child->type == WS_JSON_STRING) return wsJsonSetStringExplicit(obj, key, val);
+        else if (child->type == WS_JSON_NULL) return wsJsonSetNullToString(obj, key, val);
+        return WS_ERROR;
+    }
+    return WS_ERROR;
+}
+
+int32_t wsJsonSetNumber(wsJson *obj, const char *key, double val) {
+    wsJson* child = wsJsonGet(obj, key);
+    if (child) {
+        if (child->type == WS_JSON_NUMBER) return wsJsonSetNumberExplicit(obj, key, val);
+        else if (child->type == WS_JSON_NULL) return wsJsonSetNullToNumber(obj, key, val);
+        return WS_ERROR;
+    }
+    return WS_ERROR;
+}
+
+int32_t wsJsonSetBool(wsJson *obj, const char *key, bool val) {
+    wsJson* child = wsJsonGet(obj, key);
+    if (child) {
+        if (child->type == WS_JSON_BOOL) return wsJsonSetBoolExplicit(obj, key, val);
+        else if (child->type == WS_JSON_NULL) return wsJsonSetNullToBool(obj, key, val);
+        return WS_ERROR;
     }
     return WS_ERROR;
 }
