@@ -2,10 +2,11 @@
 #ifndef WS_JSON_LOG_H
 #define WS_JSON_LOG_H
 
-#include "ws_config.h"
 #include "ws_globals.h"
 
 #include <threads.h>
+#include <stdbool.h>
+#include <stdarg.h>
 
 typedef enum wsJsonResult {
     WS_JSON_UNDEFINIED = 1,
@@ -16,11 +17,11 @@ typedef enum wsJsonResult {
 } wsJsonResult;
 
 typedef enum wsJsonLogLevel {
-    WS_JSON_LOG_API_DUMP = WS_JSON_LOG_LEVEL_API_DUMP,
-    WS_JSON_LOG_INFO = WS_JSON_LOG_LEVEL_INFO,
-    WS_JSON_LOG_DEBUG = WS_JSON_LOG_LEVEL_DEBUG,
-    WS_JSON_LOG_WARNING = WS_JSON_LOG_LEVEL_WARNING,
-    WS_JSON_LOG_ERROR = WS_JSON_LOG_LEVEL_ERROR,
+    WS_JSON_LOG_LEVEL_API_DUMP,
+    WS_JSON_LOG_LEVEL_INFO,
+    WS_JSON_LOG_LEVEL_DEBUG,
+    WS_JSON_LOG_LEVEL_WARNING,
+    WS_JSON_LOG_LEVEL_ERROR,
 } wsJsonLogLevel;
 
 typedef struct wsJsonErrorInfo {
@@ -34,12 +35,27 @@ typedef struct wsJsonErrorInfo {
 typedef void (*wsJsonErrorCallbackPFN)(const wsJsonErrorInfo* error);
 
 extern _Thread_local wsJsonErrorInfo _wsJsonLastError;
+extern _Thread_local int32_t _wsJsonLogLevel;
 extern _Thread_local wsJsonErrorCallbackPFN _wsJsonErrorCallback;
 
 void wsJsonSetErrorCallback(wsJsonErrorCallbackPFN callback);
 wsJsonErrorInfo* wsJsonGetLastError();
 void wsJsonClearLastError();
 const char* _wsJsonErrorLogLevelToString(wsJsonLogLevel level);
+void wsJsonSetLogLevel(int32_t level);
+
+static inline void _wsJsonLogImpl(int32_t level, const char* file, const char* func, int32_t line, const char* msg, ...) {
+    if (level <= _wsJsonLogLevel) {
+        va_list vlist;
+        va_start(vlist, msg);
+        
+        char formatedMsg[256];
+        vsnprintf(formatedMsg, sizeof(formatedMsg), msg, vlist);
+        fprintf(stderr, "[%s] %s:%d (%s): %s\n", _wsJsonErrorLogLevelToString(level), file, line, func, formatedMsg);
+
+        va_end(vlist);
+    }
+}
 
 #define WS_JSON_SET_ERROR(code, msg, ...) \
     do { \
@@ -51,42 +67,20 @@ const char* _wsJsonErrorLogLevelToString(wsJsonLogLevel level);
         if (_wsJsonErrorCallback) _wsJsonErrorCallback(&_wsJsonLastError); \
     } while (0)
 
-#define WS_JSON_LOG_IMPL(level, file, func, line, msg, ...) \
-    do { \
-        char formatedMsg[256]; \
-        snprintf(formatedMsg, sizeof(formatedMsg), msg, ##__VA_ARGS__); \
-        fprintf(stderr, "[%s] %s:%d (%s): %s\n", _wsJsonErrorLogLevelToString(level), file, line, func, formatedMsg); \
-    } while (0)
+#define WS_JSON_LOG_API_DUMP(msg, ...) \
+    _wsJsonLogImpl(WS_JSON_LOG_LEVEL_API_DUMP, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
 
-#if WS_JSON_LOG_LEVEL <= WS_JSON_LOG_LEVEL_API_DUMP
-    #define WS_JSON_LOG_API_DUMP(msg, ...) \
-        WS_JSON_LOG_IMPL(WS_JSON_LOG_API_DUMP, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
-#else
-    #define WS_JSON_LOG_API_DUMP(...) ((void)0)
-#endif
+#define WS_JSON_LOG_INFO(msg, ...) \
+    _wsJsonLogImpl(WS_JSON_LOG_LEVEL_INFO, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
 
-#if WS_JSON_LOG_LEVEL <= WS_JSON_LOG_LEVEL_INFO
-    #define WS_JSON_LOG_INFO(msg, ...) \
-        WS_JSON_LOG_IMPL(WS_JSON_LOG_INFO, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
-#else
-    #define WS_JSON_LOG_INFO(...) ((void)0)
-#endif
+#define WS_JSON_LOG_DEBUG(msg, ...) \
+    _wsJsonLogImpl(WS_JSON_LOG_LEVEL_DEBUG, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
 
-#if WS_JSON_LOG_LEVEL <= WS_JSON_LOG_LEVEL_DEBUG
-    #define WS_JSON_LOG_DEBUG(msg, ...) \
-        WS_JSON_LOG_IMPL(WS_JSON_LOG_DEBUG, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
-#else
-    #define WS_JSON_LOG_DEBUG(...) ((void)0)
-#endif
-
-#if WS_JSON_LOG_LEVEL <= WS_JSON_LOG_LEVEL_WARNING
-    #define WS_JSON_LOG_WARNING(msg, ...) \
-            WS_JSON_LOG_IMPL(WS_JSON_LOG_WARNING, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
-#else
-    #define WS_JSON_LOG_WARNING(...) ((void)0)
-#endif
+#define WS_JSON_LOG_WARNING(msg, ...) \
+    _wsJsonLogImpl(WS_JSON_LOG_LEVEL_WARNING, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
 
 #define WS_JSON_LOG_ERROR(msg, ...) \
-    WS_JSON_LOG_IMPL(WS_JSON_LOG_ERROR, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
+    _wsJsonLogImpl(WS_JSON_LOG_LEVEL_ERROR, __FILE__, __func__, __LINE__, msg, ##__VA_ARGS__)
 
 #endif // ws_log.h
+

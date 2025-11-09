@@ -2,7 +2,6 @@
 #ifndef WS_JSON_H
 #define WS_JSON_H
 
-#include "ws_config.h"
 #include "ws_log.h"
 
 #include <stdint.h>

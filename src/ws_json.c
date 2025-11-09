@@ -1,5 +1,6 @@
 
 #include "../include/wsJson/ws_json.h"
+#include "../include/wsJson/ws_log.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -581,9 +582,9 @@ int32_t wsJsonGetArrayLen(wsJson* obj, const char* key) {
 }
 
 wsJson* wsJsonGetArrayAt(wsJson* obj, const char* key, int32_t index) {
-    if (index < 0 || index >= WS_JSON_OBJECT_MAX_FIELDS) return NULL;
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_ARRAY) {
+        if (index < 0 || index >= child->array.elementCount) return NULL;
         return child->array.elements[index];
     }
     return NULL;
@@ -720,9 +721,9 @@ int32_t wsJsonSetBool(wsJson *obj, const char *key, bool val) {
 }
 
 int32_t wsJsonSetElement(wsJson *obj, const char *key, int32_t index, wsJson *element) {
-    if (index < 0 || index >= WS_JSON_OBJECT_MAX_FIELDS) return WS_ERROR;
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_ARRAY) {
+        if (index < 0 || index >= child->array.elementCount) return WS_ERROR;
         child->array.elements[index] = element;
     }
     return WS_ERROR;

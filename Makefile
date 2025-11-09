@@ -40,5 +40,5 @@ example: $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf lib$(LIBNAME).a lib$(LIBNAME).so lib example
+	rm -rf $(OBJ_FILES) lib$(LIBNAME).a lib$(LIBNAME).so lib example
 

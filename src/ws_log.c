@@ -5,6 +5,7 @@ void _wsJsonDefaultErrorCallback(const wsJsonErrorInfo* error);
 
 _Thread_local wsJsonErrorInfo _wsJsonLastError = {0};
 _Thread_local wsJsonErrorCallbackPFN _wsJsonErrorCallback = _wsJsonDefaultErrorCallback;
+_Thread_local int32_t _wsJsonLogLevel = WS_JSON_LOG_LEVEL_WARNING;
 
 const char* wsJsonErrorCodeToString(wsJsonResult errorCode) {
     switch(errorCode) {
@@ -19,11 +20,11 @@ const char* wsJsonErrorCodeToString(wsJsonResult errorCode) {
 
 const char* _wsJsonErrorLogLevelToString(wsJsonLogLevel level) {
     switch (level) {
-        case WS_JSON_LOG_API_DUMP:      return "WS_JSON_API_DUMP";
-        case WS_JSON_LOG_INFO:          return "WS_JSON_INFO";
-        case WS_JSON_LOG_DEBUG:         return "WS_JSON_DEBUG";
-        case WS_JSON_LOG_WARNING:       return "WS_JSON_WARNING";
-        case WS_JSON_LOG_ERROR:         return "WS_JSON_ERROR";
+        case WS_JSON_LOG_LEVEL_API_DUMP:      return "WS_JSON_API_DUMP";
+        case WS_JSON_LOG_LEVEL_INFO:          return "WS_JSON_INFO";
+        case WS_JSON_LOG_LEVEL_DEBUG:         return "WS_JSON_DEBUG";
+        case WS_JSON_LOG_LEVEL_WARNING:       return "WS_JSON_WARNING";
+        case WS_JSON_LOG_LEVEL_ERROR:         return "WS_JSON_ERROR";
         default:                        return "WS_JSON_UNKNOWN_LOG_LEVEL";
     };
 }
@@ -47,4 +48,7 @@ void wsJsonClearLastError() {
     _wsJsonLastError.errorCode = WS_JSON_UNDEFINIED;
 }
 
+void wsJsonSetLogLevel(int32_t level) {
+    _wsJsonLogLevel = level;
+}
 
