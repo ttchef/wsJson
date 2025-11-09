@@ -25,7 +25,7 @@ install: $(BUILD)
 ifeq ($(BUILD),static)
 		cp lib/lib$(LIBNAME).a /usr/local/lib/
 else 
-		cp lib/lib$(LIBNAME).so /usr/local/lib/
+		cp lib/lib$(LIBNAME).so /usr/lib/
 endif
 		cp -r include/$(LIBNAME) /usr/local/include/
 
