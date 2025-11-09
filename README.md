@@ -5,6 +5,4 @@ This is a simple json library i created for another project i just needed it iso
 # Standard
  The library used c11 at the moment because of anonym unions
 
-# Future
 
-Planning to add dynmaic sizes for object children and array elements

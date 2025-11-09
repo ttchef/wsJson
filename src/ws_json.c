@@ -6,19 +6,22 @@
 #include <string.h>
 
 wsJson* wsJsonInitObject(const char* key) {
-    wsJson* obj = malloc(sizeof(wsJson));
+    wsJson* obj = WS_JSON_MALLOC(sizeof(wsJson));
     if (!obj) {
         WS_LOG_ERROR("Failed to allocate memory for json object: %s\n", key);
         return NULL;
     }
     memset(obj, 0, sizeof(wsJson));
+    obj->object.children = NULL;
+    obj->object.childCount = 0;
+    obj->object.childCapacity = 0;
     obj->type = WS_JSON_OBJECT;
     if (key) strncpy(obj->key, key, sizeof(obj->key) - 1);
     return obj;
 }
 
 wsJson* wsJsonInitString(const char* key, const char* val) {
-    wsJson* obj = malloc(sizeof(wsJson));
+    wsJson* obj = WS_JSON_MALLOC(sizeof(wsJson));
     if (!obj) {
         WS_LOG_ERROR("Failed to allocate memory for json object: %s\n", key);
         return NULL;
@@ -31,7 +34,7 @@ wsJson* wsJsonInitString(const char* key, const char* val) {
 }
 
 wsJson* wsJsonInitNumber(const char* key, double val) {
-    wsJson* obj = malloc(sizeof(wsJson));
+    wsJson* obj = WS_JSON_MALLOC(sizeof(wsJson));
     if (!obj) {
         WS_LOG_ERROR("Failed to allocate memory for json object: %s\n", key);
         return NULL;
@@ -44,7 +47,7 @@ wsJson* wsJsonInitNumber(const char* key, double val) {
 }
 
 wsJson* wsJsonInitBool(const char* key, bool val) {
-    wsJson* obj = malloc(sizeof(wsJson));
+    wsJson* obj = WS_JSON_MALLOC(sizeof(wsJson));
     if (!obj) {
         WS_LOG_ERROR("Failed to allocate memory for json object: %s\n", key);
         return NULL;
@@ -57,19 +60,22 @@ wsJson* wsJsonInitBool(const char* key, bool val) {
 }
 
 wsJson* wsJsonInitArray(const char* key) {
-    wsJson* obj = malloc(sizeof(wsJson));
+    wsJson* obj = WS_JSON_MALLOC(sizeof(wsJson));
     if (!obj) {
         WS_LOG_ERROR("Failed to allocate memory for json array: %s\n", key);
         return NULL;
     }
     memset(obj, 0, sizeof(wsJson));
+    obj->array.elements = NULL;
+    obj->array.elementCount = 0;
+    obj->array.elementCapacity = 0;
     obj->type = WS_JSON_ARRAY;
     if (key) strncpy(obj->key, key, sizeof(obj->key) - 1);
     return obj;
 }
 
 wsJson* wsJsonInitNull(const char* key) {
-    wsJson* obj = malloc(sizeof(wsJson));
+    wsJson* obj = WS_JSON_MALLOC(sizeof(wsJson));
     if (!obj) {
         WS_LOG_ERROR("Failed to allocate memory for json null: %s\n", key);
         return NULL;
@@ -81,15 +87,25 @@ wsJson* wsJsonInitNull(const char* key) {
 }
 
 void wsJsonAddField(wsJson *parent, wsJson *child) {
-    if (parent && parent->type == WS_JSON_OBJECT && parent->object.childCount < WS_JSON_OBJECT_MAX_FIELDS) {
-        parent->object.children[parent->object.childCount++] = child;
+    if (!parent || parent->type != WS_JSON_OBJECT || !child) return;
+
+    if (parent->object.childCount >= parent->object.childCapacity) {
+        int32_t newCap = parent->object.childCapacity == 0 ? 4 : parent->object.childCapacity * 2;
+        parent->object.children = WS_JSON_REALLOC(parent->object.children, sizeof(wsJson) * newCap);
+        parent->object.childCapacity = newCap;
     }
+    parent->object.children[parent->object.childCount++] = child;
 }
 
 void wsJsonAddElement(wsJson *array, wsJson *element) {
-    if (array && array->type == WS_JSON_ARRAY && array->array.elementCount < WS_JSON_OBJECT_MAX_FIELDS) {
-        array->array.elements[array->array.elementCount++] = element;
+    if (!array || array->type != WS_JSON_ARRAY || !element) return;
+    
+    if (array->array.elementCount >= array->array.elementCapacity) {
+        int32_t newCap = array->array.elementCapacity == 0 ? 4 : array->array.elementCapacity * 2;
+        array->array.elements = WS_JSON_REALLOC(array->array.elements, sizeof(wsJson) * newCap);
+        array->array.elementCapacity = newCap;
     }
+    array->array.elements[array->array.elementCount++] = element;
 }
 
 int32_t wsJsonToString(wsJson *obj, char *out, size_t size) {
@@ -247,7 +263,7 @@ static char* parseString(const char** string) {
     while (**string && **string != '"') (*string)++;
     size_t len = *string - start;
 
-    char* out = malloc(len + 1);
+    char* out = WS_JSON_MALLOC(len + 1);
     if (!out) {
         WS_LOG_ERROR("Failed to allocate for parsing json key\n");
         return NULL;
@@ -308,10 +324,10 @@ static wsJson* parseValue(const char** string) {
             WS_LOG_ERROR("Failed to parse json value when parsing string\n");
             return NULL;
         }
-        wsJson* node = calloc(1, sizeof(wsJson));
+        wsJson* node = WS_JSON_CALLOC(1, sizeof(wsJson));
         if (!node) {
             WS_LOG_ERROR("Failed to allocate json node when parsing string\n");
-            free(val);
+            WS_JSON_FREE(val);
             return NULL;
         }
         node->type = WS_JSON_STRING;
@@ -319,14 +335,14 @@ static wsJson* parseValue(const char** string) {
         size_t valLen = strlen(val);
         if (valLen + 1 > WS_JSON_MAX_VALUE_SIZE) {
             WS_LOG_ERROR("Value string is too long\n");
-            free(val);
+            WS_JSON_FREE(val);
             wsJsonFree(node);
             return NULL;
         }
 
         strncpy(node->stringValue, val, valLen);
         node->stringValue[valLen] = '\0';
-        free(val);
+        WS_JSON_FREE(val);
         return node;
     }
     
@@ -339,7 +355,7 @@ static wsJson* parseValue(const char** string) {
     else if (isdigit(**string) || **string == '-') {
         char* endPtr;
         double num = strtod(*string, &endPtr);
-        wsJson* node = calloc(1, sizeof(wsJson));
+        wsJson* node = WS_JSON_CALLOC(1, sizeof(wsJson));
         if (!node) {
             WS_LOG_ERROR("Failed to allocate json node when parsing string\n");
             return NULL;
@@ -352,7 +368,7 @@ static wsJson* parseValue(const char** string) {
 
     // Is Bool (true)
     else if (strncmp(*string, "true", 4) == 0) {
-        wsJson* node = calloc(1, sizeof(wsJson));
+        wsJson* node = WS_JSON_CALLOC(1, sizeof(wsJson));
         if (!node) {
             WS_LOG_ERROR("Failed to allocate json node when parsing string\n");
             return NULL;
@@ -365,7 +381,7 @@ static wsJson* parseValue(const char** string) {
 
     // Is Bool (false)
     else if (strncmp(*string, "false", 5) == 0) {
-        wsJson* node = calloc(1, sizeof(wsJson));
+        wsJson* node = WS_JSON_CALLOC(1, sizeof(wsJson));
         if (!node) {
             WS_LOG_ERROR("Failed to allocate json node when parsing string\n");
             return NULL;
@@ -378,7 +394,7 @@ static wsJson* parseValue(const char** string) {
 
     // Is Null
     else if (strncmp(*string, "null", 4) == 0) {
-        wsJson* node = calloc(1, sizeof(wsJson));
+        wsJson* node = WS_JSON_CALLOC(1, sizeof(wsJson));
         if (!node) {
             WS_LOG_ERROR("Failed to allocate json node when parsing null\n");
             return NULL;
@@ -433,7 +449,7 @@ wsJson* wsStringToJson(const char** string) {
 
         *string = skipWhitespaces(*string);
         if (**string != ':') {
-            free(key);
+            WS_JSON_FREE(key);
             break;
         }
         (*string)++;
@@ -443,7 +459,7 @@ wsJson* wsStringToJson(const char** string) {
         wsJson* val = parseValue(string);
         if (!val) {
             WS_LOG_ERROR("Failed to parse json value\n");
-            free(key);
+            WS_JSON_FREE(key);
             wsJsonFree(root);
             break;
         }
@@ -451,7 +467,7 @@ wsJson* wsStringToJson(const char** string) {
         size_t keyLen = strlen(key);
         if (keyLen + 1 > WS_JSON_MAX_KEY_SIZE) {
             WS_LOG_ERROR("Json key Size is too long\n");
-            free(key);
+            WS_JSON_FREE(key);
             wsJsonFree(val);
             wsJsonFree(root);
             break;
@@ -463,7 +479,7 @@ wsJson* wsStringToJson(const char** string) {
         *string = skipWhitespaces(*string);
         if (**string == ',') (*string)++;
 
-        free(key);
+        WS_JSON_FREE(key);
     }
 
     return root;
@@ -606,7 +622,15 @@ int32_t wsJsonSetNullToObject(wsJson* obj, const char *key, wsJson *fields) {
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_NULL) {
         child->type = WS_JSON_OBJECT;
-        memcpy(&child->object, &fields->object, sizeof(child->object));
+
+        child->object.children = fields->object.children;
+        child->object.childCount = fields->object.childCount;
+        child->object.childCapacity = fields->object.childCapacity;
+
+        fields->object.children = NULL;
+        fields->object.childCount = 0;
+        fields->object.childCapacity = 0;
+        WS_JSON_FREE(fields);
         return WS_OK;
     }
     return WS_ERROR;
@@ -648,7 +672,15 @@ int32_t wsJsonSetNullToArray(wsJson *obj, const char *key, wsJson *array) {
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_NULL) {
         child->type = WS_JSON_ARRAY;
-        memcpy(&child->array, &array->array, sizeof(child->array));
+
+        child->array.elements = array->array.elements;
+        child->array.elementCount = array->array.elementCount;
+        child->array.elementCapacity = array->array.elementCapacity;
+
+        array->array.elements = NULL;
+        array->array.elementCount = 0;
+        array->array.elementCapacity = 0;
+        WS_JSON_FREE(array);
         return WS_OK;
     }
     return WS_ERROR;
@@ -702,11 +734,13 @@ void wsJsonFree(wsJson *obj) {
         for (int32_t i = 0; i < obj->object.childCount; i++) {
             wsJsonFree(obj->object.children[i]);
         }
+        WS_JSON_FREE(obj->object.children);
     } else if (obj->type == WS_JSON_ARRAY) {
         for (int32_t i = 0; i < obj->array.elementCount; i++) {
             wsJsonFree(obj->array.elements[i]);
         }
+        WS_JSON_FREE(obj->array.elements);
     }
-    free(obj);
+    WS_JSON_FREE(obj);
 }
 

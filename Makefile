@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -o2 -std=c99 -Iinclude/wsJson
+CFLAGS = -o2 -std=c99 -Iinclude/wsJson  -fsanitize=address -fsanitize=undefined 
 
 BUILD ?= static
 
@@ -33,7 +33,8 @@ uninstall:
 	rm -rf /usr/local/include/wsJson
 
 example: $(BUILD)
-	$(CC) -g example.c src/ws_json.c -o example -Iinclude/wsJson
+	$(CC) -g example.c src/ws_json.c -o example -Iinclude/wsJson -fsanitize=address -fsanitize=undefined 
+
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
