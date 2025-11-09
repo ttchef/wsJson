@@ -1,0 +1,15 @@
+
+#ifndef WS_JSON_CONFIG_H
+#define WS_JSON_CONFIG_H
+
+#define WS_JSON_LOG_LEVEL_API_DUMP    0
+#define WS_JSON_LOG_LEVEL_INFO        1
+#define WS_JSON_LOG_LEVEL_DEBUG       2
+#define WS_JSON_LOG_LEVEL_WARNING     3
+#define WS_JSON_LOG_LEVEL_ERROR       4
+
+#ifndef WS_JSON_LOG_LEVEL
+    #define WS_JSON_LOG_LEVEL WS_JSON_LOG_LEVEL_WARNING
+#endif // WS_JSON_LOG_LEVEL
+
+#endif

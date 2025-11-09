@@ -2,7 +2,8 @@
 #ifndef WS_JSON_H
 #define WS_JSON_H
 
-#include "ws_globals.h"
+#include "ws_config.h"
+#include "ws_log.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -10,14 +11,13 @@
 
 #define WS_JSON_MAX_KEY_SIZE 64 
 #define WS_JSON_MAX_VALUE_SIZE 256
-#define WS_JSON_OBJECT_MAX_FIELDS 16
 
 #define WS_JSON_MALLOC(size) malloc(size)
 #define WS_JSON_REALLOC(ptr, size) realloc(ptr, size)
 #define WS_JSON_CALLOC(n, size) calloc(n, size)
 #define WS_JSON_FREE(ptr) free(ptr)
 
-typedef enum {
+typedef enum wsJsonType {
     WS_JSON_STRING,
     WS_JSON_NUMBER,
     WS_JSON_OBJECT,
@@ -45,7 +45,6 @@ typedef struct wsJson {
         } array;
     };
 } wsJson;
-
 
 // Create functions
 wsJson* wsJsonInitObject(const char* key);

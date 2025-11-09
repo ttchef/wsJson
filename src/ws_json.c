@@ -1,14 +1,17 @@
 
-#include "ws_json.h"
-#include "ws_globals.h"
+#include "../include/wsJson/ws_json.h"
 
 #include <ctype.h>
 #include <string.h>
 
 wsJson* wsJsonInitObject(const char* key) {
+    if (!key) {
+        WS_JSON_LOG_INFO("Object key is null");
+    }
+
     wsJson* obj = WS_JSON_MALLOC(sizeof(wsJson));
     if (!obj) {
-        WS_LOG_ERROR("Failed to allocate memory for json object: %s\n", key);
+        WS_JSON_SET_ERROR(WS_JSON_MALLOC, "Failed to allocate object: %s", key);
         return NULL;
     }
     memset(obj, 0, sizeof(wsJson));

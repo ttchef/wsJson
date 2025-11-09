@@ -33,12 +33,12 @@ uninstall:
 	rm -rf /usr/local/include/wsJson
 
 example: $(BUILD)
-	$(CC) -g example.c src/ws_json.c -o example -Iinclude/wsJson -fsanitize=address -fsanitize=undefined 
+	$(CC) $(CFLAGS) example.c -o example -lwsJson
 
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf lib$(LIBNAME).a lib$(LIBNAME).so lib
+	rm -rf lib$(LIBNAME).a lib$(LIBNAME).so lib example
 

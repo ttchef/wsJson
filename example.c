@@ -1,5 +1,6 @@
 
-#include "include/wsJson/ws_json.h"
+#define WS_JSON_LOG_LEVEL 1
+#include <wsJson/ws_json.h>
 
 int main() {
 
