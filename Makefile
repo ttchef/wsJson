@@ -1,6 +1,7 @@
 
 CC = gcc
-CFLAGS = -o2 -std=c99 -Iinclude/wsJson  -fsanitize=address -fsanitize=undefined 
+CFLAGS = -g -std=c99 -Iinclude/wsJson  -fsanitize=address -fsanitize=undefined
+SHARED_CFLAGS = $(CFLAGS) -fPIC
 
 BUILD ?= static
 
@@ -8,12 +9,13 @@ LIBNAME = wsJson
 
 SRC_FILES = $(wildcard src/*.c)
 OBJ_FILES = $(SRC_FILES:.c=.o)
+SHARED_OBJ_FILES = $(SRC_FILES:.c=.shared.o)
 
 all: $(BUILD)
 
-shared: $(OBJ_FILES)
+shared: $(SHARED_OBJ_FILES)
 	mkdir -p lib
-	$(CC) $(CFLAGS) -shared -fPIC $(OBJ_FILES) -o lib/lib$(LIBNAME).so
+	$(CC) $(SHARED_CFLAGS) -shared $(SHARED_OBJ_FILES) -o lib/lib$(LIBNAME).so
 
 static: $(OBJ_FILES)
 	mkdir -p lib
@@ -32,13 +34,16 @@ uninstall:
 	rm -f /usr/local/lib/lib$(LIBNAME).so
 	rm -rf /usr/local/include/wsJson
 
-example: $(BUILD)
+example:
 	$(CC) $(CFLAGS) example.c -o example -lwsJson
 
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+%.shared.o: %.c
+	$(CC) $(SHARED_CFLAGS) -c $< -o $@
+
 clean:
-	rm -rf $(OBJ_FILES) lib$(LIBNAME).a lib$(LIBNAME).so lib example
+	rm -rf $(OBJ_FILES) $(SHARED_OBJ_FILES) lib$(LIBNAME).a lib$(LIBNAME).so lib example
 
