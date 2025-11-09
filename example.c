@@ -29,9 +29,23 @@ int main() {
     wsJsonGetStringEx(root, "name", name, WS_JSON_MAX_VALUE_SIZE);
     printf("Name: %s\n", name);
 
+    // Arrays
+    wsJson* array = wsJsonInitArray("array");
+    wsJson* num = wsJsonInitNumber("num", 5);
+    wsJsonAddElement(array, num);
+    wsJson* color = wsJsonInitObject("color");
+    wsJsonAddNumber(color, "red", 0);
+    wsJsonAddNumber(color, "green", 255);
+    wsJsonAddNumber(color, "blue", 255);
+    wsJsonAddString(color, "name", "cyan");
+    wsJsonAddElement(array, color);
+    wsJsonAddField(root, array);
+
+    printf("Array Length: %d\n", wsJsonGetArrayLen(root, "array"));
+
     // Print Json
     char string[2000];
-    wsJsonToString(root, string, 2000);
+    wsJsonToStringPretty(root, string, 2000);
     printf("%s\n", string);
 
     wsJsonFree(root);

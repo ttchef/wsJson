@@ -150,6 +150,90 @@ int32_t wsJsonToString(wsJson *obj, char *out, size_t size) {
     return used;
 }
 
+size_t addIndent(char* out, size_t size, int32_t indent) {
+    size_t used = 0;
+    for (int32_t i = 0; i < indent; i++) {
+        if (used < size - 1) out[used++] = ' ';
+    }
+    return used;
+}
+
+int32_t wsJsonToStringPrettyInternal(wsJson *obj, char *out, size_t size, int32_t indent) {
+    if (!obj) {
+        WS_LOG_ERROR("Input json obj is NULL\n");
+        return WS_ERROR;
+    }
+    if (!out) {
+        WS_LOG_ERROR("Input buffer for output is NULL\n");
+        return WS_ERROR;
+    }
+    
+    size_t used = 0;
+
+    switch (obj->type) {
+        case WS_JSON_STRING:
+            used += snprintf(out + used, size - used, "\"%s\"", obj->stringValue);
+            break;
+        case WS_JSON_NUMBER:
+            used += snprintf(out + used, size - used, "%g", obj->numberValue);
+            break;
+        case WS_JSON_BOOL:
+            used += snprintf(out + used, size - used, "%s", obj->boolValue ? "true" : "false");
+            break;
+        case WS_JSON_NULL:
+            used += snprintf(out + used, size - used, "null");
+            break;
+        case WS_JSON_OBJECT:
+            used += snprintf(out + used, size - used, "{\n");
+            for (int32_t i = 0; i < obj->object.childCount; i++) {
+                wsJson* child = obj->object.children[i];
+                if (i > 0) {
+                    used += snprintf(out + used, size - used, ",\n");
+                }
+                used += addIndent(out + used, size - used, indent + 4);
+                used += snprintf(out + used, size - used, "\"%s\": ", child->key);
+                int32_t written = wsJsonToStringPrettyInternal(child, out + used, size - used, indent + 4);
+                if (written < 0) return WS_ERROR;
+                used += written;
+            }
+            used += snprintf(out + used, size - used, "\n");
+            used += addIndent(out + used, size - used, indent);
+            used += snprintf(out + used, size - used, "}");
+            break;
+        case WS_JSON_ARRAY:
+            used += snprintf(out + used, size - used, "[\n");
+            for (int32_t i = 0; i < obj->array.elementCount; i++) {
+                wsJson* element = obj->array.elements[i];
+                if (i > 0) {
+                    used += snprintf(out + used, size - used, ",\n");
+                }
+                used += addIndent(out + used, size - used, indent + 4);
+                int32_t written = wsJsonToStringPrettyInternal(element, out + used, size - used, indent + 4);
+                if (written < 0) return WS_ERROR;
+                used += written;
+            }
+            used += snprintf(out + used, size - used, "\n");
+            used += addIndent(out + used, size - used, indent);
+            used += snprintf(out + used, size - used, "]");
+            break;
+        default:
+            WS_LOG_ERROR("Failed to parse json into string\n");
+            return WS_ERROR;
+    }
+
+    return used;
+}
+
+int32_t wsJsonToStringPretty(wsJson *obj, char *out, size_t size) {
+    if (!obj || !out) {
+        WS_LOG_ERROR("Invalid JSON or buffer\n");
+        return WS_ERROR;
+    }
+    size_t used = wsJsonToStringPrettyInternal(obj, out, size, 0);
+    out[used] = '\0';
+    return (int32_t)used;
+}
+
 static char* skipWhitespaces(const char* string) {
     while (*string && isspace((unsigned char)*string)) string++;
     return (char*)string;
@@ -469,6 +553,23 @@ bool wsJsonGetBool(wsJson* obj, const char* key) {
     return WS_ERROR;
 }
 
+int32_t wsJsonGetArrayLen(wsJson* obj, const char* key) {
+    wsJson* child = wsJsonGet(obj, key);
+    if (child && child->type == WS_JSON_ARRAY) {
+        return child->array.elementCount;
+    }
+    return WS_ERROR;
+}
+
+wsJson* wsJsonGetArrayAt(wsJson* obj, const char* key, int32_t index) {
+    if (index < 0 || index >= WS_JSON_OBJECT_MAX_FIELDS) return NULL;
+    wsJson* child = wsJsonGet(obj, key);
+    if (child && child->type == WS_JSON_ARRAY) {
+        return child->array.elements[index];
+    }
+    return NULL;
+}
+
 int32_t wsJsonSetStringExplicit(wsJson *obj, const char *key, const char *val) {
     size_t lenght = strlen(val);
     if (lenght >= WS_JSON_MAX_VALUE_SIZE) return WS_ERROR;
@@ -579,6 +680,15 @@ int32_t wsJsonSetBool(wsJson *obj, const char *key, bool val) {
         if (child->type == WS_JSON_BOOL) return wsJsonSetBoolExplicit(obj, key, val);
         else if (child->type == WS_JSON_NULL) return wsJsonSetNullToBool(obj, key, val);
         return WS_ERROR;
+    }
+    return WS_ERROR;
+}
+
+int32_t wsJsonSetElement(wsJson *obj, const char *key, int32_t index, wsJson *element) {
+    if (index < 0 || index >= WS_JSON_OBJECT_MAX_FIELDS) return WS_ERROR;
+    wsJson* child = wsJsonGet(obj, key);
+    if (child && child->type == WS_JSON_ARRAY) {
+        child->array.elements[index] = element;
     }
     return WS_ERROR;
 }

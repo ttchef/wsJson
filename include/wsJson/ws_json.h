@@ -56,6 +56,7 @@ void wsJsonAddElement(wsJson* array, wsJson* element);
 
 // String conversions
 int32_t wsJsonToString(wsJson* obj, char* out, size_t size);
+int32_t wsJsonToStringPretty(wsJson* obj, char* out, size_t size);
 wsJson* wsStringToJson(const char** string);
 
 // Get Values 
@@ -64,6 +65,10 @@ const char* wsJsonGetString(wsJson* obj, const char* key);
 int32_t wsJsonGetStringEx(wsJson* obj, const char* key, char* out, size_t size);
 double wsJsonGetNumber(wsJson* obj, const char* key);
 bool wsJsonGetBool(wsJson* obj, const char* key);
+
+// Array Getters
+int32_t wsJsonGetArrayLen(wsJson* obj, const char* key);
+wsJson* wsJsonGetArrayAt(wsJson* obj, const char* key, int32_t index);
 
 // Setter Explicit Functions (if object is null it wont set)
 int32_t wsJsonSetStringExplicit(wsJson* obj, const char* key, const char* val);
@@ -74,6 +79,7 @@ int32_t wsJsonSetBoolExplicit(wsJson* obj, const char* key, bool val);
 int32_t wsJsonSetString(wsJson* obj, const char* key, const char* val);
 int32_t wsJsonSetNumber(wsJson* obj, const char* key, double val);
 int32_t wsJsonSetBool(wsJson* obj, const char* key, bool val);
+int32_t wsJsonSetElement(wsJson* obj, const char* key, int32_t index, wsJson* element);
 
 // Null conversions
 int32_t wsJsonSetNullToObject(wsJson* obj, const char* key, wsJson* objects);
@@ -84,6 +90,8 @@ int32_t wsJsonSetNullToArray(wsJson* obj, const char* key, wsJson* array);
 
 // Goes recursive trough the json tree and frees everything
 void wsJsonFree(wsJson* obj);
+
+// === Helper Functions ===
 
 #ifndef WSJSON_NO_MACROS
     #define wsJsonAddString(parent, key, val) (wsJsonAddField(parent, wsJsonInitString(key, val)))
