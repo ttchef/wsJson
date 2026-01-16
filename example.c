@@ -45,21 +45,12 @@ int main() {
     printf("Array Length: %d\n", wsJsonGetArrayLen(root, "array"));
 
     // Print Json
-    char string[2000];
-    wsJsonToStringPretty(root, string, 2000);
+    char string[20000];
+    wsJsonToStringPretty(root, string, 20000);
     printf("%s\n", string);
 
     wsJsonFree(root);
 
     return 0;
 }
-
-/*
-Output:
-
-Lives: 100.00
-Name: Fredmaster
-{"number": 32,"name": "Fredmaster","bool": true,"player": {"lives": 100,"alive": true}}
-
-*/
 

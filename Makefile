@@ -11,6 +11,8 @@ SRC_FILES = $(wildcard src/*.c)
 OBJ_FILES = $(SRC_FILES:.c=.o)
 SHARED_OBJ_FILES = $(SRC_FILES:.c=.shared.o)
 
+.PHONY: shared static install uninstall example clean
+
 all: $(BUILD)
 
 shared: $(SHARED_OBJ_FILES)

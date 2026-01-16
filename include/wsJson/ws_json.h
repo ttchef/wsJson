@@ -29,7 +29,11 @@ typedef struct wsJson {
     char key[WS_JSON_MAX_KEY_SIZE];
     wsJsonType type;
     union {
-        char stringValue[WS_JSON_MAX_VALUE_SIZE];
+        struct {
+            char* stringValue;
+            int32_t stringLength;
+            int32_t stringCapacity;
+        };
         double numberValue;
         bool boolValue;
         struct {

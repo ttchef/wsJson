@@ -1,6 +1,7 @@
 
 #include "../include/wsJson/ws_json.h"
 #include "../include/wsJson/ws_log.h"
+#include "ws_globals.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -33,7 +34,11 @@ wsJson* wsJsonInitString(const char* key, const char* val) {
     memset(obj, 0, sizeof(wsJson));
     obj->type = WS_JSON_STRING;
     if (key) strncpy(obj->key, key, sizeof(obj->key) - 1);
-    if (val) strncpy(obj->stringValue, val, sizeof(obj->stringValue) - 1);
+    if (val) { 
+        size_t length = strlen(val);
+        obj->stringValue = WS_JSON_MALLOC(length);
+        strncpy(obj->stringValue, val, sizeof(obj->stringValue) - 1);
+    }
     return obj;
 }
 
@@ -344,6 +349,7 @@ static wsJson* parseValue(const char** string) {
             return NULL;
         }
 
+        node->stringValue = WS_JSON_MALLOC(valLen);
         strncpy(node->stringValue, val, valLen);
         node->stringValue[valLen] = '\0';
         WS_JSON_FREE(val);
@@ -592,13 +598,12 @@ wsJson* wsJsonGetArrayAt(wsJson* obj, const char* key, int32_t index) {
 
 int32_t wsJsonSetStringExplicit(wsJson *obj, const char *key, const char *val) {
     size_t lenght = strlen(val);
-    if (lenght >= WS_JSON_MAX_VALUE_SIZE) return WS_ERROR;
 
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_STRING) {
+        child->stringValue = WS_JSON_MALLOC(lenght);
         char* dest = child->stringValue;
-        memset(dest, 0, WS_JSON_MAX_VALUE_SIZE);
-        strcpy(dest, val);
+        strncpy(dest, val, lenght);
         return WS_OK;
     }
     return WS_ERROR;
@@ -739,11 +744,15 @@ void wsJsonFree(wsJson *obj) {
             wsJsonFree(obj->object.children[i]);
         }
         WS_JSON_FREE(obj->object.children);
-    } else if (obj->type == WS_JSON_ARRAY) {
+    } 
+    else if (obj->type == WS_JSON_ARRAY) {
         for (int32_t i = 0; i < obj->array.elementCount; i++) {
             wsJsonFree(obj->array.elements[i]);
         }
         WS_JSON_FREE(obj->array.elements);
+    }
+    else if (obj->type == WS_JSON_STRING) {
+        WS_JSON_FREE(obj->stringValue);
     }
     WS_JSON_FREE(obj);
 }
