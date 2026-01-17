@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -g -std=c99 -Iinclude/wsJson  -fsanitize=address -fsanitize=undefined
+CFLAGS = -g -std=c99 -Iinclude/wsJson  #-fsanitize=address -fsanitize=undefined
 SHARED_CFLAGS = $(CFLAGS) -fPIC
 
 BUILD ?= static
