@@ -355,13 +355,6 @@ static wsJson* parseValue(const char** string) {
         node->type = WS_JSON_STRING;
 
         size_t valLen = strlen(val);
-        if (valLen + 1 > WS_JSON_MAX_VALUE_SIZE) {
-            WS_LOG_ERROR("Value string is too long\n");
-            WS_JSON_FREE(val);
-            wsJsonFree(node);
-            return NULL;
-        }
-
         node->stringValue = WS_JSON_MALLOC(valLen + 1);
         strncpy(node->stringValue, val, valLen);
         node->stringValue[valLen] = '\0';
