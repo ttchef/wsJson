@@ -269,8 +269,20 @@ static char* parseString(const char** string) {
     (*string)++; // skip "
     const char* start = *string;
 
-    // Find end 
-    while (**string && **string != '"') (*string)++;
+    // Find end (also handle escape sequences)
+    while (**string) {
+        if (**string == '\\') {
+            (*string)++;
+            if (**string) (*string)++;
+        }
+        else if (**string == '"') {
+            break;
+        }
+        else {
+            (*string)++;
+        }
+    }
+    //while (**string && **string != '"') (*string)++;
     size_t len = *string - start;
 
     char* out = WS_JSON_MALLOC(len + 1);
