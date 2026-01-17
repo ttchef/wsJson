@@ -362,7 +362,7 @@ static wsJson* parseValue(const char** string) {
             return NULL;
         }
 
-        node->stringValue = WS_JSON_MALLOC(valLen);
+        node->stringValue = WS_JSON_MALLOC(valLen + 1);
         strncpy(node->stringValue, val, valLen);
         node->stringValue[valLen] = '\0';
         WS_JSON_FREE(val);
@@ -467,13 +467,13 @@ wsJson* wsStringToJson(const char** string) {
         if (!key) {
             WS_LOG_ERROR("Failed to parse json key\n");
             wsJsonFree(root);
-            break;
+            return NULL;
         }
 
         *string = skipWhitespaces(*string);
         if (**string != ':') {
             WS_JSON_FREE(key);
-            break;
+            return NULL;
         }
         (*string)++;
 
@@ -484,7 +484,7 @@ wsJson* wsStringToJson(const char** string) {
             WS_LOG_ERROR("Failed to parse json value\n");
             WS_JSON_FREE(key);
             wsJsonFree(root);
-            break;
+            return NULL;
         }
 
         size_t keyLen = strlen(key);
@@ -493,7 +493,7 @@ wsJson* wsStringToJson(const char** string) {
             WS_JSON_FREE(key);
             wsJsonFree(val);
             wsJsonFree(root);
-            break;
+            return NULL;
         }
         strncpy(val->key, key, keyLen);
         val->key[keyLen] = '\0';
@@ -616,7 +616,7 @@ int32_t wsJsonSetStringExplicit(wsJson *obj, const char *key, const char *val) {
     if (child && child->type == WS_JSON_STRING) {
         if (child->stringValue) WS_JSON_FREE(child->stringValue);
 
-        child->stringValue = WS_JSON_MALLOC(length);
+        child->stringValue = WS_JSON_MALLOC(length + 1);
         strncpy(child->stringValue, val, length);
         child->stringValue[length] = '\0';
         return WS_OK;
@@ -665,6 +665,7 @@ int32_t wsJsonSetNullToString(wsJson *obj, const char *key, const char *val) {
     if (child && child->type == WS_JSON_NULL) {
         child->type = WS_JSON_STRING;
         size_t length = strlen(val);
+        child->stringValue = WS_JSON_MALLOC(length + 1);
         strncpy(child->stringValue, val, length);
         child->stringValue[length] = '\0';
         return WS_OK;
