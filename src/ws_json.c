@@ -552,7 +552,7 @@ wsJson* wsJsonGet(wsJson* obj, const char* key) {
     return current;
 }
 
-const char* wsJsonGetString(wsJson* obj, const char* key) {
+char* wsJsonGetString(wsJson* obj, const char* key) {
     wsJson* child = wsJsonGet(obj, key);
     if (child && child->type == WS_JSON_STRING) {
         return child->stringValue;

@@ -66,7 +66,7 @@ wsJson* wsStringToJson(const char** string);
 
 // Get Values 
 wsJson* wsJsonGet(wsJson* obj, const char* key);
-const char* wsJsonGetString(wsJson* obj, const char* key);
+char* wsJsonGetString(wsJson* obj, const char* key);
 int32_t wsJsonGetStringEx(wsJson* obj, const char* key, char* out, size_t size);
 double wsJsonGetNumber(wsJson* obj, const char* key);
 bool wsJsonGetBool(wsJson* obj, const char* key);
