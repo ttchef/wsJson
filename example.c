@@ -1,5 +1,6 @@
 
-#include <wsJson/ws_json.h>
+#define WS_JSON_IMPLEMENTATION
+#include "src/wsJson.h"
 
 int main() {
 
