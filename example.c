@@ -1,9 +1,10 @@
 
-#include <wsJson/ws_json.h>
+#define WS_JSON_IMPLEMENTATION
+#include "src/wsJson.h"
 
 int main() {
+    wsJsonSetLogLevel(WS_JSON_LOG_LEVEL_WARNING);
 
-    wsJsonSetLogLevel(WS_JSON_LOG_LEVEL_API_DUMP);
     // Init a new Json object
     wsJson* root = wsJsonInitObject(NULL);
 
