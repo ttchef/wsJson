@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define WS_JSON_MAX_KEY_SIZE 64 
 #define WS_JSON_MAX_VALUE_SIZE 256
@@ -61,6 +62,11 @@ typedef struct wsJson {
     };
 } wsJson;
 
+static _Thread_local struct {
+    wsJson *stack[100];
+    uint32_t sp;
+} __wsJsonCtx;
+
 // Create functions
 wsJson* wsJsonInitObject(const char* key);
 wsJson* wsJsonInitString(const char* key, const char* val);
@@ -112,12 +118,29 @@ int32_t wsJsonSetNullToArray(wsJson* obj, const char* key, wsJson* array);
 // Goes recursive trough the json tree and frees everything
 void wsJsonFree(wsJson* obj);
 
-#ifndef WS_JSON_NO_MACROS
-    #define wsJsonAddString(parent, key, val) (wsJsonAddField(parent, wsJsonInitString(key, val)))
-    #define wsJsonAddNumber(parent, key, val) (wsJsonAddField(parent, wsJsonInitNumber(key, val)))
-    #define wsJsonAddBool(parent, key, val) (wsJsonAddField(parent, wsJsonInitBool(key, val)))
-    #define wsJsonAddNull(parent, key) (wsJsonAddField(parent, wsJsonInitNull(key)))
-#endif // WS_JSON_MACROS
+#define wsJsonAddString(parent, key, val) (wsJsonAddField(parent, wsJsonInitString(key, val)))
+#define wsJsonAddNumber(parent, key, val) (wsJsonAddField(parent, wsJsonInitNumber(key, val)))
+#define wsJsonAddBool(parent, key, val) (wsJsonAddField(parent, wsJsonInitBool(key, val)))
+#define wsJsonAddNull(parent, key) (wsJsonAddField(parent, wsJsonInitNull(key)))
+
+#define __wsPush(obj) (__wsJsonCtx.stack[__wsJsonCtx.sp++] = (obj))
+#define __wsPop() (__wsJsonCtx.stack[--__wsJsonCtx.sp])
+#define __wsCurrent() (__wsJsonCtx.stack[__wsJsonCtx.sp - 1])
+
+/* Macro Api */
+#define wsJsonObject(var) \
+    wsJson *var = wsJsonInitObject(#var); \
+    for (wsJson *_ = (__wsPush(var), var); \
+        _; \
+        (__wsJsonCtx.sp > 1 ? wsJsonAddField(__wsJsonCtx.stack[__wsJsonCtx.sp - 2], var) : (void)0), \
+        __wsPop(), _ = NULL)
+
+#define wsJsonRoot(var) \
+    wsJson *var = wsJsonInitObject(NULL); \
+    for (wsJson *_ = (__wsPush(var), var); \
+        _; \
+        (__wsJsonCtx.sp > 1 ? wsJsonAddField(__wsJsonCtx.stack[__wsJsonCtx.sp - 2], var) : (void)0), \
+        __wsPop(), _ = NULL)
 
 /* Log */
 #include <threads.h>
