@@ -84,7 +84,7 @@ void wsJsonAddElement(wsJson* array, wsJson* element);
 // String conversions
 int32_t wsJsonToString(wsJson* obj, char* out, size_t size);
 int32_t wsJsonToStringPretty(wsJson* obj, char* out, size_t size);
-wsJson* wsStringToJson(const char** string);
+wsJson* wsJsonFromString(const char** string);
 
 // Get Values 
 wsJson* wsJsonGet(wsJson* obj, const char* key);
@@ -571,7 +571,7 @@ static wsJson* parseValue(const char** string) {
     
     // Is Field/Object 
     else if (**string == '{') {
-        return wsStringToJson(string);
+        return wsJsonFromString(string);
     }
 
     // Is Digit 
@@ -635,7 +635,7 @@ static wsJson* parseValue(const char** string) {
     return NULL;
 }
 
-wsJson* wsStringToJson(const char** string) {
+wsJson* wsJsonFromString(const char** string) {
     if (!string) {
         WS_JSON_LOG_ERROR("Invalid input paramerter is NULL\n");
         return NULL;
